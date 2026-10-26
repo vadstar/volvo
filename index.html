@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Valve — Andere machen Spiele</title>
+<style>
+:root { color-scheme: dark; --bg:#101216; --blue:#66c0f4; --white:#f5f5f5; --muted:#b8c4d1 }
+* { box-sizing:border-box }
+body { margin:0; background:var(--bg); color:var(--white); font:clamp(15px,1.5vw,22px)/1.45 Arial,sans-serif }
+.slide {
+  display:none; position:relative; min-height:100svh; padding:6vh 7vw 7vh; overflow:hidden;
+  background:radial-gradient(ellipse at 90% 10%,#20364a 0,transparent 50%),linear-gradient(135deg,#101216,#171c24);
+  flex-direction:column; justify-content:center;
+}
+.slide.active { display:flex }
+.kicker { color:var(--blue); text-transform:uppercase; letter-spacing:.16em; font-size:.7em; font-weight:bold }
+h1 { font-size:clamp(2.2rem,6vw,5rem); line-height:1.05; margin:.2em 0 }
+h2 { font-size:clamp(1.8rem,3.8vw,3.3rem); line-height:1.1; margin:.25em 0 .4em }
+p { max-width:900px; margin:.5em 0 }
+ul { padding-left:1.2em; margin:.4em 0 }
+li { margin:.4em 0 }
+.blue { color:var(--blue) } .muted { color:var(--muted) } .big { font-size:1.25em }
+.quote { border-left:5px solid var(--blue); padding-left:1em; max-width:900px; margin:.8em 0 }
+.stat { font-size:clamp(3rem,8vw,7rem); color:var(--blue); font-weight:bold; line-height:1 }
+.badge { display:inline-block; background:#c0392b; color:#fff; font-weight:bold; padding:.15em .6em; border-radius:4px; font-size:.8em }
+
+.cols { display:grid; grid-template-columns:1.1fr .9fr; gap:4vw; align-items:center }
+.cols.rev { grid-template-columns:.9fr 1.1fr }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:1.2vw }
+.cards { display:grid; grid-template-columns:1fr 1fr; gap:1.4vw; margin-top:.6em }
+.card { background:#ffffff0d; border:1px solid #ffffff1a; border-radius:8px; padding:.7em 1em }
+.card { display:flex; gap:.8em; align-items:center }
+.thumbs { display:flex; align-items:center; gap:.3em; flex:none }
+.thumb { width:3.6em }
+.thumb img, .thumb .ph { aspect-ratio:1/1; padding:.3em; font-size:.45em; border-radius:6px }
+.arrow { color:var(--blue); font-weight:bold }
+figure.light img { background:#f5f5f5; padding:1em; border-radius:8px }
+.card b { color:var(--blue) }
+.card small { display:block; color:var(--muted); font-size:.75em }
+
+/* images with fallback box (shown when the file is missing) */
+figure { margin:0 }
+figure img, .ph { width:100%; aspect-ratio:var(--ar,16/9); object-fit:cover; border-radius:8px; border:1px solid #ffffff22; display:block }
+.ph { display:none; align-items:center; justify-content:center; text-align:center; background:#1b2838; color:var(--muted); font-size:.7em; padding:1em }
+figure.missing img { display:none } figure.missing .ph { display:flex }
+figcaption { font-size:.6em; color:var(--muted); margin-top:.3em }
+figure.contain img { object-fit:contain; background:#171a21; padding:1.2em }
+figure.free img { object-fit:contain; border:0; background:none }
+
+/* full-screen photo slide */
+.slide.photo { padding:0 }
+.slide.photo figure { position:absolute; inset:0 }
+.slide.photo img, .slide.photo .ph { width:100%; height:100%; aspect-ratio:auto; border-radius:0; border:0 }
+.slide.photo .notes { position:relative; z-index:2; background:#000b; margin:auto 2em 2em; padding:.6em 1em }
+
+/* centered logo slide */
+.slide.logo { align-items:center; text-align:center }
+.slide.logo figure { width:min(48vw,640px) }
+
+/* background-image slide (Deadlock portraits) */
+.slide.bgimg {
+  background:linear-gradient(rgba(10,12,16,0.1),rgba(10,12,16,.9)),
+             url(images/deadlock-portraits.avif) center/cover no-repeat, #101216;
+}
+
+/* quiet footer */
+.progress { height:2px; position:fixed; top:0; left:0; background:var(--blue) }
+footer { position:fixed; right:10px; bottom:8px; display:flex; gap:4px; align-items:center;
+  font-size:12px; color:var(--muted); opacity:.25; transition:opacity .4s; z-index:5 }
+body.ui footer, footer:hover { opacity:1 }
+footer button { color:var(--white); background:#26394c; border:1px solid #45617b; border-radius:4px;
+  padding:2px 9px; cursor:pointer; font:inherit }
+footer button:hover { background:#365773 }
+
+.notes { display:none; color:var(--muted); font-size:.7em; margin-top:1.2em; border-top:1px dashed #ffffff33; padding-top:.5em }
+body.shownotes .notes { display:block }
+
+@media print {
+  @page { size:1280px 720px; margin:0 }
+  body { background:#101216; print-color-adjust:exact; -webkit-print-color-adjust:exact }
+  .slide, .slide.active { display:flex !important; width:1280px; height:720px; min-height:0;
+    break-after:page; page-break-after:always; padding:40px 90px }
+  .slide.photo { padding:0 }
+  footer, .progress, .notes { display:none !important }
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<main id="deck">
+
+<!-- 1. VOLVO (Witz) -->
+<section class="slide photo active">
+  <figure><img src="images/volvo.png" alt="Volvo"><div class="ph">images/volvo.png<br>(ein Volvo-Auto, Vollbild)</div></figure>
+  <p class="notes">Sprechernotiz: Nichts sagen. Ernst schauen, kurz warten. Dann weiterklicken.</p>
+</section>
+
+<!-- 2. VALVE LOGO -->
+<section class="slide logo">
+  <figure class="free" style="--ar:16/9"><img src="images/Valve-logo.png" alt="Valve Logo"><div class="ph">images/Valve-logo.png<br>(Valve Logo)</div></figure>
+  <h2>Ups. Falsche Firma.<br><span class="blue">Das hier ist Valve.</span></h2>
+  <p class="notes">Sprechernotiz: „Entschuldigung, Verwechslung. Volvo baut Autos, Valve baut Ventile im Kopf.“</p>
+</section>
+
+<!-- 3. MR. VALVE -->
+<section class="slide">
+  <div class="cols rev">
+    <figure style="--ar:1/1"><img src="images/mr-valve.webp" alt="Mr. Valve"><div class="ph">images/mr-valve.webp<br>(Mr. Valve: Mann mit Ventil am Kopf)</div></figure>
+    <div>
+      <div class="kicker">Der offizielle Vertreter</div>
+      <h2>Das ist <span class="blue">Mr. Valve</span>.</h2>
+      <ul>
+        <li>Er begrüßt uns seit 1998 in vielen Valve-Spielen.</li>
+        <li>Niemand weiß genau, wer er ist.</li>
+        <li>Er sagt nie ein Wort. Er schaut nur.</li>
+      </ul>
+      <div class="quote">Der beste Mitarbeiter: Er hat ein Ventil im Kopf und beschwert sich nie.</div>
+    </div>
+  </div>
+  <p class="notes">Sprechernotiz: Mr. Valve ist der Mann aus dem Valve-Intro (Half-Life, Orange Box, Alyx). Wer er wirklich ist, ist nicht sicher bekannt.</p>
+</section>
+
+<!-- 3b. MR. VALVE, Teil 2 -->
+<section class="slide">
+  <div class="cols">
+    <div>
+      <div class="kicker">Der offizielle Vertreter</div>
+      <h2>Mr. Valve — <span class="blue">Teil 2</span></h2>
+      <ul>
+        <li>Es gibt ihn in zwei Versionen.</li>
+        <li>Mal sitzt das Ventil im Auge. Mal im Hinterkopf.</li>
+        <li>Eins ist immer gleich: der ernste Blick.</li>
+      </ul>
+      <div class="quote">Wenn dich jemand so ansieht, gibst du ihm sofort einen Job.</div>
+    </div>
+    <figure style="--ar:1/1"><img src="images/mr-valve2.jpg" alt="Mr. Valve, zweite Version"><div class="ph">images/mr-valve2.jpg<br>(Mr. Valve, zweite Version)</div></figure>
+  </div>
+  <p class="notes">Sprechernotiz: Die zweite Version zeigen und kurz warten. Die Texte bei Bedarf an die Bilder anpassen (welche Version hat das Ventil im Auge, welche im Hinterkopf).</p>
+</section>
+
+<!-- 4. QUALIFIKATION -->
+<section class="slide">
+  <div class="kicker">01 — Qualifikation</div>
+  <h2>Warum darf ich darüber reden?</h2>
+  <div class="stat">1.000 h</div>
+  <p class="big">In jedem Valve-Spiel.</p>
+  <div class="quote">„Meine Qualifikation basiert auf umfangreicher Feldforschung, Schlafmangel und einer problematischen Beziehung zur Taste W.“</div>
+  <p class="notes">Wichtig: Die 1.000 Stunden sind der gewünschte Präsentationswitz, keine überprüfte Tatsachenbehauptung. Falls nötig: „Ich beantrage hiermit die akademische Anerkennung meiner Steam-Bibliothek.“</p>
+</section>
+
+<!-- 5. UNTERNEHMEN -->
+<section class="slide">
+  <div class="kicker">02 — Das Unternehmen</div>
+  <h2>Valve verkauft nicht nur Spiele.</h2>
+  <div class="cols">
+    <div>
+      <ul>
+        <li><span class="blue">Spiele:</span> eigene Hits (dazu gleich mehr).</li>
+        <li><span class="blue">Steam:</span> Shop, Bibliothek und Community an einem Ort.</li>
+        <li><span class="blue">Kundenservice:</span> Du hast ein Problem? Schreib ihnen — sie lösen alles.</li>
+        <li><span class="blue">Regionale Preise:</span> Der Preis passt sich dem Land an.</li>
+        <li><span class="blue">Extras:</span> Cloud-Speicherstände, Family Sharing, Workshop für Mods.</li>
+      </ul>
+      <div class="quote">Valve verkauft nicht nur. Valve kauft auch ein — dazu gleich mehr.</div>
+    </div>
+    <figure class="contain" style="--ar:16/9"><img src="images/steam-logo.webp" alt="Steam"><div class="ph">images/steam-logo.png<br>(Steam Logo)</div></figure>
+  </div>
+  <p class="notes">Sprechernotiz: Pointe: Andere verkaufen ein Spiel. Valve baut dazu einen Service, bei dem man gerne bleibt. Das ist die Kundensicht und ein Witz mit wahrem Kern: Valve ist bekannt für faire Regeln, zum Beispiel bei Rückgaben. Wie schnell der Support im Einzelfall antwortet, erleben Leute unterschiedlich.</p>
+</section>
+
+<!-- 6. COMMUNITY -->
+<section class="slide">
+  <div class="kicker">03 — Community als Talentschmiede</div>
+  <h2>Valve findet gute Ideen — und stellt die Leute ein.</h2>
+  <div class="cards">
+    <div class="card"><span class="thumbs"><figure class="thumb contain"><img src="images/half-life.webp" alt="Half-Life"><div class="ph">Half-Life</div></figure><span class="arrow">→</span><figure class="thumb contain"><img src="images/counter-strike.png" alt="Counter-Strike"><div class="ph">counter-strike.png</div></figure></span><div><b>Counter-Strike</b> — Mod für Half-Life (1999)
+      <small>Minh Le und Jess Cliffe → Valve holt das Team → Verkauf im Laden 2000</small></div></div>
+    <!-- <div class="card"><div><b>Team Fortress</b> — Mod für Quake
+      <small>Valve stellt das Team 1998 ein → später Team Fortress 2</small></div></div> -->
+    <div class="card"><span class="thumbs"><figure class="thumb contain"><img src="images/team-fortress.png" alt="Portal"><div class="ph">portal.webp</div></figure></span><div><b>Team Fortress</b> — Mod für Quake
+      <small>Valve stellt das Team 1998 ein → später Team Fortress 2</small></div></div>
+    <div class="card"><span class="thumbs"><figure class="thumb contain"><img src="images/portal.webp" alt="Portal"><div class="ph">portal.webp</div></figure></span><div><b>Portal</b> — Studentenprojekt „Narbacular Drop“
+      <small>Valve stellt das Team ein → Portal erscheint 2007</small></div></div>
+    <div class="card"><span class="thumbs"><figure class="thumb contain"><img src="images/Dota2.png" alt="Dota 2"><div class="ph">Dota2.png</div></figure></span><div><b>Dota 2</b> — Mod „Defense of the Ancients“ (Warcraft III)
+      <small>Valve holt Entwickler IceFrog → Dota 2 (2013)</small></div></div>
+  </div>
+  <p class="muted">Auch dabei: <span class="blue">Day of Defeat</span> (Mod) und <span class="blue">Left 4 Dead</span> (Valve kaufte das Studio Turtle Rock).</p>
+  <div class="quote">Valves Bewerbung: Bau etwas Geniales im Keller. Vielleicht ruft Gabe an.</div>
+  <p class="notes">Sprechernotiz: Das Muster ist immer gleich: Die Community baut etwas Gutes, Valve erkennt das Potenzial und holt die Leute ins Team.</p>
+</section>
+
+<!-- 7. LAUNCHER -->
+<section class="slide">
+  <div class="kicker">04 — Steam und die Konkurrenz (Satire)</div>
+  <h2>Der Launcher-Bossgegner</h2>
+  <p class="big">Steam ist so stark, weil die anderen oft selbst Fehler machen:</p>
+  <ul>
+    <li><span class="blue">Epic:</span> Exklusiv-Deals. 2019 verschwand <i>Metro Exodus</i> kurz vor dem Start von Steam. Viele Käufer waren sauer.</li>
+    <li><span class="blue">EA:</span> Verließ Steam 2011 mit eigenem Launcher (Origin). Seit 2019 ist EA zurück.</li>
+    <li><span class="blue">Ubisoft:</span> Auch auf Steam brauchst du oft noch ein Ubisoft-Konto. Noch ein Login!</li>
+  </ul>
+  <div class="quote">„Ich wollte nur ein Spiel starten. Warum öffne ich drei Launcher und brauche zwei Passwörter?“</div>
+  <p class="muted">Und ich als Kunde? Meine Bibliothek hat 500 Spiele. Ich spiele drei. Danke, Steam-Sale.</p>
+  <p class="notes">Sprechernotiz: Das ist Satire und meine persönliche Meinung, kein objektives Ranking.</p>
+</section>
+
+<!-- 8. DEADLOCK INTRO -->
+<section class="slide">
+  <div class="cols rev">
+    <figure style="--ar:16/9"><img src="images/deadlock-logo.png" alt="Deadlock Logo"><div class="ph">images/deadlock-logo.png<br>(Deadlock Logo / Intro-Bild)</div></figure>
+    <div>
+      <div class="kicker">05 — Das neue Valve-Spiel</div>
+      <h2>Deadlock <span class="badge">BETA</span></h2>
+      <ul>
+        <li>Ein Helden-Shooter mit MOBA-Elementen.</li>
+        <li><span class="blue">Status:</span> Noch Beta. Nicht öffentlich. Du kommst nur mit einer Einladung rein.</li>
+        <li>Kein Release-Datum.</li>
+        <li>Im Oktober 2026: über <span class="blue">300.000</span> Spieler gleichzeitig (Rekord).</li>
+      </ul>
+      <div class="quote">Das Spiel gibt es offiziell noch nicht. Trotzdem spielen es 300.000 Leute gleichzeitig.</div>
+    </div>
+  </div>
+  <p class="notes">Sprechernotiz: Deadlock ist weiter eine geschlossene Beta ohne öffentlichen Zugang. Spielerzahlen laut SteamDB-Berichten (Oktober 2026), vor dem Vortrag kurz prüfen.</p>
+</section>
+
+<!-- 9. DEADLOCK HELDEN (Hintergrundbild) -->
+<section class="slide bgimg">
+  <div class="kicker">05 — Deadlock</div>
+  <h2>Jeder Held ist ein kleines Kunstwerk.</h2>
+  <ul class="big">
+    <li>Eine <span class="blue">Oma auf einer Bank</span> (Baba).</li>
+    <li>Ein <span class="blue">Rattenkönig</span> mit Krone (Rat King).</li>
+    <li>Ein Wesen aus <span class="blue">Schleim</span> (Viscous).</li>
+    <li>Und alle anderen: eigenes Design, eigene Geschichte.</li>
+  </ul>
+  <div class="quote">Andere Spiele haben Soldaten. Valve hat eine Oma mit Bank.</div>
+  <p class="muted"><span class="badge">BETA</span> Noch nicht öffentlich. Spielbar nur mit Einladung.</p>
+  <p class="notes">Sprechernotiz: Bild im Hintergrund: Collage aller Helden-Porträts. Das Update „The City Never Sleeps“ (29. September 2026) brachte sechs neue Helden: Rat King, Baba, Violet, Nurse Harrow, Solomon, Deadman Danny.</p>
+</section>
+
+<!-- 10. HARDWARE / ZUKUNFT -->
+<section class="slide">
+  <div class="kicker">06 — Der nächste Schritt</div>
+  <h2>Valve baut die Zukunft des Gamings.</h2>
+  <div class="cols">
+    <ul>
+      <li><span class="blue">Steam Deck:</span> Steam-Spiele zum Mitnehmen.</li>
+      <li><span class="blue">Steam Machine:</span> Steam im Wohnzimmer.</li>
+      <li><span class="blue">Steam Controller:</span> gebaut für Steam.</li>
+      <li><span class="blue">Steam Frame:</span> die VR-Brille von Valve.</li>
+      <li><span class="blue">SteamOS:</span> Alle sind von Microsoft genervt. Also baut Gabe Newell einfach sein eigenes Betriebssystem.</li>
+    </ul>
+    <div class="grid2">
+      <figure style="--ar:4/3"><img src="images/steam-deck.jpg" alt="Steam Deck"><div class="ph">images/steam-deck.png</div></figure>
+      <figure style="--ar:4/3"><img src="images/steam-machine.jpg" alt="Steam Machine"><div class="ph">images/steam-machine.jpg</div></figure>
+      <figure style="--ar:4/3"><img src="images/steam-controller.jpg" alt="Steam Controller"><div class="ph">images/steam-controller.jpg</div></figure>
+      <figure style="--ar:4/3"><img src="images/steam-frame.png" alt="Steam Frame"><div class="ph">images/steam-frame.png</div></figure>
+    </div>
+  </div>
+  <div class="quote">Valve will nicht noch ein Exemplar verkaufen. Valve baut die Plattform, auf der wir in Zukunft spielen.</div>
+  <p class="notes">Sprechernotiz: Es geht um Strategie, nicht um Preise: tiefere Erfahrung für die Kunden, vom Handheld bis VR. SteamOS basiert auf Linux; Windows-Spiele laufen dort dank Proton. Wie erfolgreich die Hardware wird, ist offen.</p>
+</section>
+
+<!-- 11. FAZIT -->
+<section class="slide">
+  <div class="kicker">07 — Fazit</div>
+  <h2>Was ist Valves Geheimnis?</h2>
+  <ul>
+    <li><span class="blue">Genies einstellen</span> und gute Ideen aus der Community ernst nehmen.</li>
+    <li><span class="blue">Kundenservice</span>, bei dem niemand gehen möchte.</li>
+    <li><span class="blue">Sich nicht selbst ins Bein schießen</span> — das machen die anderen.</li>
+  </ul>
+  <p class="big">Das ist eine ziemlich gute Strategie.</p>
+  <h1 class="blue">Weniger Reibung.<br>Mehr Spiele.</h1>
+  <p>Danke! Fragen? Beschwerden bitte an den Steam-Support.</p>
+  <p class="notes">Sprechernotiz: Mit der Pointe enden. Bei Fragen: Die Kritik an der Konkurrenz ist meine persönliche Meinung.</p>
+</section>
+
+</main>
+
+<footer>
+  <span id="counter">1 / 12</span>
+  <button onclick="prev()" title="Zurück (←)">←</button>
+  <button onclick="next()" title="Weiter (→)">→</button>
+  <button onclick="print()" title="Drucken / PDF (P)">PDF</button>
+</footer>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let current=0, hideTimer;
+function show(n){
+  current=Math.max(0,Math.min(slides.length-1,n));
+  slides.forEach((s,i)=>s.classList.toggle('active',i===current));
+  document.getElementById('counter').textContent=`${current+1} / ${slides.length}`;
+  document.getElementById('progress').style.width=`${(current+1)/slides.length*100}%`;
+}
+function next(){show(current+1)}
+function prev(){show(current-1)}
+function wake(){
+  document.body.classList.add('ui');
+  clearTimeout(hideTimer);
+  hideTimer=setTimeout(()=>document.body.classList.remove('ui'),2000);
+}
+document.addEventListener('mousemove',wake);
+document.addEventListener('keydown',e=>{
+  if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();next()}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();prev()}
+  const k=e.key.toLowerCase();
+  if(k==='f'){ if(!document.fullscreenElement)document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.() }
+  if(k==='p')window.print();
+  if(k==='n')document.body.classList.toggle('shownotes');
+});
+let x0=null;
+document.addEventListener('touchstart',e=>x0=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{
+  if(x0===null)return; const d=e.changedTouches[0].clientX-x0;
+  if(Math.abs(d)>50) d<0?next():prev(); x0=null;
+});
+document.querySelectorAll('figure img').forEach(img=>{
+  const bad=()=>img.closest('figure').classList.add('missing');
+  img.addEventListener('error',bad);
+  if(img.complete&&!img.naturalWidth)bad();
+});
+show(0);
+</script>
+</body>
+</html>
